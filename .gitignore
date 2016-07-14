@@ -1,0 +1,31 @@
+# CodeBlocks Noise
+ToxController.layout
+ToxController.depend
+
+# External Libraries / Header Files
+include/*
+lib/*
+
+# Build Folders
+obj
+bin
+
+# Test Folder
+run
+
+# Compiled Binaries
+*.exe
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
