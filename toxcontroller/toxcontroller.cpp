@@ -74,11 +74,14 @@ void ToxController::setupCallbacks()
     //  tox_callback_friend_request (tox, (tox_friend_request_cb*) &evtOnRequest, NULL);
     //  tox_callback_friend_message (tox, (tox_friend_message_cb*) &evtOnMessage, NULL);
 
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wpmf-conversions"
     void(ToxController::*_evtOnRequest)(Tox*, const uint8_t*, const uint8_t*, size_t , void*) = &ToxController::evtOnRequest;
     tox_callback_friend_request (tox, (tox_friend_request_cb*) _evtOnRequest, NULL);
 
     void(ToxController::*_evtOnMessage)(Tox*, uint32_t, TOX_MESSAGE_TYPE, const uint8_t*, size_t, void*) = &ToxController::evtOnMessage;
     tox_callback_friend_message (tox, (tox_friend_message_cb*) _evtOnMessage, NULL);
+    #pragma GCC diagnostic pop
 }
 
 ToxController::~ToxController()
@@ -110,7 +113,7 @@ std::string ToxController::convAddressToHexString (const uint8_t *address)
 {
     std::stringstream ss;
     ss << std::setfill('0');
-    for (int i = 0; i < TOX_ADDRESS_SIZE; ++i)
+    for (size_t i = 0; i < TOX_ADDRESS_SIZE; ++i)
         ss << std::hex << std::uppercase << std::setw(2) << static_cast<unsigned short>(address[i]);
     return ss.str();
 }
