@@ -36,6 +36,7 @@
 		</Compiler>
 		<Linker>
 			<Add option="-ltoxcore" />
+			<Add option="-Wl,-rpath -Wl,/usr/local/lib" />
 		</Linker>
 		<Unit filename="example/example.cpp" />
 		<Unit filename="example/example.hpp" />

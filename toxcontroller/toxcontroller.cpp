@@ -24,7 +24,14 @@
 #include <iomanip>
 #include <cstring>
 
-#include <windows.h>
+#ifdef WIN32
+    #define PLATFORM_WINDOWS
+
+    #include <windows.h>
+#else
+    #define PLATFORM_NIX
+#endif
+
 
 uint8_t char2int (char input)
 {
@@ -67,10 +74,10 @@ void ToxController::setupCallbacks()
     //  tox_callback_friend_request (tox, (tox_friend_request_cb*) &evtOnRequest, NULL);
     //  tox_callback_friend_message (tox, (tox_friend_message_cb*) &evtOnMessage, NULL);
 
-    void(ToxController::*_evtOnRequest)(Tox*, const uint8_t*, const uint8_t*, size_t , void*) = &evtOnRequest;
+    void(ToxController::*_evtOnRequest)(Tox*, const uint8_t*, const uint8_t*, size_t , void*) = &ToxController::evtOnRequest;
     tox_callback_friend_request (tox, (tox_friend_request_cb*) _evtOnRequest, NULL);
 
-    void(ToxController::*_evtOnMessage)(Tox*, uint32_t, TOX_MESSAGE_TYPE, const uint8_t*, size_t, void*) = &evtOnMessage;
+    void(ToxController::*_evtOnMessage)(Tox*, uint32_t, TOX_MESSAGE_TYPE, const uint8_t*, size_t, void*) = &ToxController::evtOnMessage;
     tox_callback_friend_message (tox, (tox_friend_message_cb*) _evtOnMessage, NULL);
 }
 
@@ -82,7 +89,12 @@ ToxController::~ToxController()
 void ToxController::think()
 {
     tox_iterate (tox);
+
+    #ifdef PLATFORM_WINDOWS
     Sleep (tox_iteration_interval (tox));
+    #elifdef PLATFORM_NIX
+    usleep (tox_iteration_interval (tox));
+    #endif
 }
 
 std::string ToxController::convPublicKeyToHexString (const uint8_t *public_key)
