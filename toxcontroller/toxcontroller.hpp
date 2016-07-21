@@ -19,6 +19,7 @@
 
 #include <string>
 #include <cstdint>
+#include <memory>
 
 #include <tox/tox.h>
 
@@ -39,7 +40,6 @@ public:
                    std::string bootstrap_key,
                    std::string nickname,
                    std::string status);
-    ~ToxController();
 
     void think();
     std::string getAddress();
@@ -51,7 +51,7 @@ protected:
     std::string convAddressToHexString (const uint8_t *address);
 
 private:
-    Tox *tox;
+    std::unique_ptr<Tox, std::function<decltype(tox_kill)>> tox;
     uint8_t *bootstrap_pub_key;
     uint8_t *address;
 

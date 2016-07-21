@@ -57,14 +57,14 @@ ToxController::ToxController (std::string bootstrap_address, uint16_t bootstrap_
 {
     uint8_t *bootstrap_pub_key = new uint8_t[TOX_PUBLIC_KEY_SIZE];
     hex_string_to_bin (bootstrap_key.c_str(), bootstrap_pub_key);
-    tox = tox_new (NULL, NULL);
+    tox = std::unique_ptr<Tox, decltype(&tox_kill)> (tox_new (NULL, NULL), tox_kill);
 
-    tox_self_set_name (tox, (uint8_t *) nickname.c_str(), nickname.length(), NULL);
-    tox_self_set_status_message (tox, (uint8_t *) status.c_str(), status.length(), NULL);
+    tox_self_set_name (tox.get(), (uint8_t *) nickname.c_str(), nickname.length(), NULL);
+    tox_self_set_status_message (tox.get(), (uint8_t *) status.c_str(), status.length(), NULL);
 
-    tox_self_set_status (tox, TOX_USER_STATUS_NONE);
+    tox_self_set_status (tox.get(), TOX_USER_STATUS_NONE);
 
-    tox_bootstrap (tox, bootstrap_address.c_str(), bootstrap_port, bootstrap_pub_key, NULL);
+    tox_bootstrap (tox.get(), bootstrap_address.c_str(), bootstrap_port, bootstrap_pub_key, NULL);
 }
 
 void ToxController::setupCallbacks()
@@ -77,21 +77,16 @@ void ToxController::setupCallbacks()
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wpmf-conversions"
     void(ToxController::*_evtOnRequest)(Tox*, const uint8_t*, const uint8_t*, size_t , void*) = &ToxController::evtOnRequest;
-    tox_callback_friend_request (tox, (tox_friend_request_cb*) _evtOnRequest, NULL);
+    tox_callback_friend_request (tox.get(), (tox_friend_request_cb*) _evtOnRequest, NULL);
 
     void(ToxController::*_evtOnMessage)(Tox*, uint32_t, TOX_MESSAGE_TYPE, const uint8_t*, size_t, void*) = &ToxController::evtOnMessage;
-    tox_callback_friend_message (tox, (tox_friend_message_cb*) _evtOnMessage, NULL);
+    tox_callback_friend_message (tox.get(), (tox_friend_message_cb*) _evtOnMessage, NULL);
     #pragma GCC diagnostic pop
-}
-
-ToxController::~ToxController()
-{
-    tox_kill (tox);
 }
 
 void ToxController::think()
 {
-    tox_iterate (tox);
+    tox_iterate (tox.get());
 
     #ifdef PLATFORM_WINDOWS
     Sleep (tox_iteration_interval (tox));
@@ -139,7 +134,7 @@ uint8_t *ToxController::convPublicKeyToAddress (const uint8_t *public_key)
 std::string ToxController::getAddress()
 {
     uint8_t *address = new uint8_t[TOX_ADDRESS_SIZE];
-	tox_self_get_address (tox, address);
+	tox_self_get_address (tox.get(), address);
 	std::string out = convAddressToHexString (address);
 	delete[] address;
 	return out;
