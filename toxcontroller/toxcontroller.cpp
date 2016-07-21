@@ -71,8 +71,8 @@ void ToxController::setupCallbacks()
 {
     // The following basically does this, but in a way that actually works.
     // Improve this, if possible.
-    //  tox_callback_friend_request (tox, (tox_friend_request_cb*) &evtOnRequest, NULL);
-    //  tox_callback_friend_message (tox, (tox_friend_message_cb*) &evtOnMessage, NULL);
+    //  tox_callback_friend_request (tox.get(), (tox_friend_request_cb*) &evtOnRequest, NULL);
+    //  tox_callback_friend_message (tox.get(), (tox_friend_message_cb*) &evtOnMessage, NULL);
 
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wpmf-conversions"
