@@ -64,24 +64,23 @@ ToxController::ToxController (std::string bootstrap_address, uint16_t bootstrap_
 
     tox_self_set_status (tox.get(), TOX_USER_STATUS_NONE);
 
+    // Register callbacks: Pass reference to current instance ("this") as user_data.
+    tox_callback_friend_request (tox.get(), (tox_friend_request_cb*) &ToxController::__ctxCallEventOnRequest, this);
+    tox_callback_friend_message (tox.get(), (tox_friend_message_cb*) &ToxController::__ctxCallEventOnMessage, this);
+
     tox_bootstrap (tox.get(), bootstrap_address.c_str(), bootstrap_port, bootstrap_pub_key, NULL);
 }
 
-void ToxController::setupCallbacks()
+// __ctxCallEvent*: Forwarding functions that call on* Events on the object whose reference we get via user_data.
+
+void ToxController::__ctxCallEventOnRequest (Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data)
 {
-    // The following basically does this, but in a way that actually works.
-    // Improve this, if possible.
-    //  tox_callback_friend_request (tox.get(), (tox_friend_request_cb*) &evtOnRequest, NULL);
-    //  tox_callback_friend_message (tox.get(), (tox_friend_message_cb*) &evtOnMessage, NULL);
+    static_cast<ToxController*> (user_data)->onRequest (tox, public_key, message, length, user_data);
+}
 
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wpmf-conversions"
-    void(ToxController::*_evtOnRequest)(Tox*, const uint8_t*, const uint8_t*, size_t , void*) = &ToxController::evtOnRequest;
-    tox_callback_friend_request (tox.get(), (tox_friend_request_cb*) _evtOnRequest, NULL);
-
-    void(ToxController::*_evtOnMessage)(Tox*, uint32_t, TOX_MESSAGE_TYPE, const uint8_t*, size_t, void*) = &ToxController::evtOnMessage;
-    tox_callback_friend_message (tox.get(), (tox_friend_message_cb*) _evtOnMessage, NULL);
-    #pragma GCC diagnostic pop
+void ToxController::__ctxCallEventOnMessage (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *user_data)
+{
+    static_cast<ToxController*> (user_data)->onMessage (tox, friend_number, type, message, length, user_data);
 }
 
 void ToxController::think()
@@ -143,4 +142,14 @@ std::string ToxController::getAddress()
 message_id ToxController::sendMessage (friend_number friend_number, std::string message, TOX_MESSAGE_TYPE type)
 {
     return tox_friend_send_message (tox.get(), friend_number, type, (uint8_t *) message.c_str(), message.length(), NULL);
+}
+
+friend_number ToxController::addFriend (const uint8_t *address, std::string message)
+{
+    return tox_friend_add (tox.get(), address, (uint8_t *) message.c_str(), message.length(), NULL);
+}
+
+friend_number ToxController::addFriendNoRequest (const uint8_t *public_key)
+{
+    return tox_friend_add_norequest (tox.get(), public_key, NULL);
 }

@@ -48,9 +48,10 @@ public:
     std::string getAddress();
 
     message_id sendMessage (friend_number, std::string message, TOX_MESSAGE_TYPE type = TOX_MESSAGE_TYPE_NORMAL);
+    friend_number addFriend (const uint8_t *address, std::string message);
+    friend_number addFriendNoRequest (const uint8_t *public_key);
 
 protected:
-    void setupCallbacks();
     uint8_t *convPublicKeyToAddress (const uint8_t *public_key);
     std::string convPublicKeyToHexString (const uint8_t *address);
     std::string convAddressToHexString (const uint8_t *address);
@@ -60,6 +61,9 @@ private:
     uint8_t *bootstrap_pub_key;
     uint8_t *address;
 
-    virtual void evtOnRequest (Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data) = 0;
-    virtual void evtOnMessage (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *user_data) = 0;
+    static void __ctxCallEventOnRequest (Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data);
+    static void __ctxCallEventOnMessage (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *user_data);
+
+    virtual void onRequest (Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data) = 0;
+    virtual void onMessage (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *user_data) = 0;
 };
