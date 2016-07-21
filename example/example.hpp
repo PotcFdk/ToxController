@@ -19,6 +19,6 @@ public:
     };
 
 private:
-    void evtOnRequest(Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data) override;
+    void evtOnRequest (Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data) override;
     void evtOnMessage (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *user_data) override;
 };
