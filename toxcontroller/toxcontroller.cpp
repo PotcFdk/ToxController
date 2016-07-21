@@ -88,9 +88,9 @@ void ToxController::think()
     tox_iterate (tox.get());
 
     #ifdef PLATFORM_WINDOWS
-    Sleep (tox_iteration_interval (tox));
+    Sleep (tox_iteration_interval (tox.get()));
     #elifdef PLATFORM_NIX
-    usleep (tox_iteration_interval (tox) * 1000);
+    usleep (tox_iteration_interval (tox.get() * 1000);
     #endif
 }
 
