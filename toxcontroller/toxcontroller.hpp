@@ -32,6 +32,9 @@ template <typename T> T initialize_controller (std::string bootstrap_address, ui
 }
 */
 
+typedef uint32_t message_id;
+typedef uint32_t friend_number;
+
 class ToxController
 {
 public:
@@ -43,6 +46,8 @@ public:
 
     void think();
     std::string getAddress();
+
+    message_id sendMessage (friend_number, std::string message, TOX_MESSAGE_TYPE type = TOX_MESSAGE_TYPE_NORMAL);
 
 protected:
     void setupCallbacks();

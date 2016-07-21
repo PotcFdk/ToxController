@@ -140,3 +140,7 @@ std::string ToxController::getAddress()
 	return out;
 }
 
+message_id ToxController::sendMessage (friend_number friend_number, std::string message, TOX_MESSAGE_TYPE type)
+{
+    return tox_friend_send_message (tox.get(), friend_number, type, (uint8_t *) message.c_str(), message.length(), NULL);
+}
