@@ -91,7 +91,7 @@ void ToxController::think()
     #ifdef PLATFORM_WINDOWS
     Sleep (tox_iteration_interval (tox));
     #elifdef PLATFORM_NIX
-    usleep (tox_iteration_interval (tox));
+    usleep (tox_iteration_interval (tox) * 1000);
     #endif
 }
 
